@@ -1,16 +1,21 @@
+# Maven build directory
 target/
+
+# Ensure maven wrapper jar is not ignored
 !.mvn/wrapper/maven-wrapper.jar
+
+# Ensure target directories in source directories are not ignored
 !**/src/main/**/target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
 out/
 
-# Package Files #
+# Package files (build artifacts)
 *.jar
 *.war
 *.nar
@@ -19,10 +24,10 @@ out/
 *.tar.gz
 *.rar
 
-# Sonarlint plugin
+# SonarLint plugin for IntelliJ IDEA
 .idea/**/sonarlint/
 
-# JIRA plugin
+# JIRA plugin for IntelliJ IDEA
 atlassian-ide-plugin.xml
 
 ### NetBeans ###
@@ -37,3 +42,8 @@ build/
 
 ### VS Code ###
 .vscode/
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
