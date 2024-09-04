@@ -10,13 +10,13 @@ import java.util.Optional;
 
 public class JsonParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonParser.class);
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static <T> Optional<T> parseFromJson(Path path, Class<T> clazz) {
         LOGGER.debug("Start parsing JSON file '{}'", path);
         var jsonFile = path.toFile();
         try {
-            T result = mapper.readValue(jsonFile, clazz);
+            T result = MAPPER.readValue(jsonFile, clazz);
             return Optional.ofNullable(result);
         } catch (IOException e) {
             LOGGER.error("Failed to parse JSON file '{}': {}", path, e.toString());

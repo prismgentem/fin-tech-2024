@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ToXml {
-    private static final XmlMapper xmlMapper = new XmlMapper();
+    private static final XmlMapper XML_MAPPER = new XmlMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(ToXml.class);
 
     public static <T> Path toXml(T object, Path fileName) {
@@ -18,7 +18,7 @@ public class ToXml {
         var appDir = Paths.get("").toAbsolutePath();
         var path = appDir.resolve(fileName);
         try {
-            var xml = xmlMapper.writeValueAsString(object);
+            var xml = XML_MAPPER.writeValueAsString(object);
             Files.writeString(path, xml);
             LOGGER.info("Successfully written XML to file: {}", path);
             return path;
