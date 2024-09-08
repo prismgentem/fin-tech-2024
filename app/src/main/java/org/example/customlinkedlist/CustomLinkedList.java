@@ -1,6 +1,10 @@
 package org.example.customlinkedlist;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.util.AbstractList;
 import java.util.Collection;
