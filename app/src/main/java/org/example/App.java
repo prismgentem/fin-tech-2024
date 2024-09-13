@@ -3,40 +3,35 @@
  */
 package org.example;
 
-import org.example.model.City;
-import org.example.parser.JsonParser;
-import org.example.parser.ToXml;
+import org.example.customlinkedlist.CustomLinkedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
+import java.util.Random;
+import java.util.stream.Stream;
 
 public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
-    private static final String MSG_WARNING_WITH_JSON = "Failed to parse JSON file: %s. File: %s";
-
     public static void main(String[] args) {
-        var resource = Path.of(ClassLoader.getSystemResource("city.json").getPath());
 
-        var parsedJson = JsonParser.parseFromJson(resource, City.class);
+        var random = new Random();
 
-        parsedJson.ifPresentOrElse(
-                city -> {
-                    LOGGER.info("Parsed City: {}", city);
+        var stream = Stream.generate(() -> random.nextInt(10000))
+                .limit(15);
 
-                    Path xmlFileName = Paths.get("city.xml");
-                    Path xmlPath = ToXml.toXml(city, xmlFileName);
-
-                    if (xmlPath != null) {
-                        LOGGER.info("Successfully created XML file at: {}", xmlPath);
-                    } else {
-                        LOGGER.warn("Failed to create XML file.");
-                    }
+        var customList = stream.reduce(
+                new CustomLinkedList<>(),
+                (list, element) -> {
+                    list.add(element);
+                    return list;
                 },
-                () -> LOGGER.warn(String.format(MSG_WARNING_WITH_JSON, "Invalid JSON structure or content", resource.getFileName()))
+                (list1, list2) -> {
+                    list1.addAll(list2);
+                    return list1;
+                }
         );
 
+        var log = customList.toString();
+        LOGGER.info(log);
     }
 }
