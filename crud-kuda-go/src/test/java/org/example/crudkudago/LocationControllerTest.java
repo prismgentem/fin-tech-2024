@@ -1,16 +1,21 @@
 package org.example.crudkudago;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.crudkudago.controller.LocationController;
+import org.springframework.http.MediaType;
 import org.example.crudkudago.entity.Location;
-import org.example.crudkudago.service.LocationService;
+import org.example.crudkudago.service.LocationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.wiremock.integrations.testcontainers.WireMockContainer;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -21,20 +26,34 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(LocationController.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@Testcontainers
 class LocationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private LocationService locationService;
+    private LocationServiceImpl locationService;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     private Location location;
     private UUID locationId;
+
+    @Container
+    private static final WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
+            .withMappingFromResource("wiremock/locations.json");
+
+    @DynamicPropertySource
+    static void overrideKudaGoProperties(DynamicPropertyRegistry registry) {
+        String wireMockUrl = String.format("http://%s:%d",
+                wiremockServer.getHost(),
+                wiremockServer.getMappedPort(8080));
+        registry.add("kudago.location-url", () -> wireMockUrl + "/public-api/v1.4/locations");
+    }
 
     @BeforeEach
     void setUp() {
@@ -121,7 +140,7 @@ class LocationControllerTest {
 
     @Test
     void shouldDeleteLocation() throws Exception {
-        doNothing().when(locationService).deleteLocationById(locationId);
+        doNothing().when(locationService).deleteLocation(locationId);
 
         var mvcResult = mockMvc.perform(delete("/api/v1/locations/{id}", locationId)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -131,6 +150,6 @@ class LocationControllerTest {
         var jsonResponse = mvcResult.getResponse().getContentAsString();
         assertThat(jsonResponse).isEmpty();
 
-        verify(locationService, times(1)).deleteLocationById(locationId);
+        verify(locationService, times(1)).deleteLocation(locationId);
     }
 }
