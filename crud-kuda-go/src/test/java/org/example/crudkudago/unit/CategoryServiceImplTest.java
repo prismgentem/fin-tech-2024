@@ -1,4 +1,4 @@
-package org.example.crudkudago;
+package org.example.crudkudago.unit;
 
 import org.example.crudkudago.entity.Category;
 import org.example.crudkudago.exception.CategoryNotFoundException;

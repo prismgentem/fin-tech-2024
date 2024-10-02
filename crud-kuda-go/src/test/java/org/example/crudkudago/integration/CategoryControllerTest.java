@@ -1,4 +1,4 @@
-package org.example.crudkudago;
+package org.example.crudkudago.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.crudkudago.controller.CategoryControllerImpl;
