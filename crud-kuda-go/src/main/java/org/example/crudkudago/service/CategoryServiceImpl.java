@@ -5,6 +5,7 @@ import org.example.crudkudago.exception.CategoryNotFoundException;
 import org.example.crudkudago.exception.CategoryOperationException;
 import org.example.crudkudago.entity.Category;
 import org.example.crudkudago.repository.InMemoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +14,12 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    private final InMemoryRepository<Category> categoryRepository = new InMemoryRepository<>();
+    private final InMemoryRepository<Category> categoryRepository;
+
+    @Autowired
+    public CategoryServiceImpl(InMemoryRepository<Category> categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     @Override
     public List<Category> getAllCategories() {

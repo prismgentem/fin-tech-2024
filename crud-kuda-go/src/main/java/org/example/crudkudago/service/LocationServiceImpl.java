@@ -5,6 +5,7 @@ import org.example.crudkudago.entity.Location;
 import org.example.crudkudago.exception.LocationNotFoundException;
 import org.example.crudkudago.exception.LocationOperationException;
 import org.example.crudkudago.repository.InMemoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +14,11 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class LocationServiceImpl implements LocationService {
-    private final InMemoryRepository<Location> locationRepository = new InMemoryRepository<>();
+    private final InMemoryRepository<Location> locationRepository;
+    @Autowired
+    public LocationServiceImpl(InMemoryRepository<Location> locationRepository) {
+        this.locationRepository = locationRepository;
+    }
 
     @Override
     public List<Location> getAllLocations() {
