@@ -1,4 +1,5 @@
-package org.example.crudkudago.annotation;
+package org.example.logexecutionstarter.annotation;
+
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

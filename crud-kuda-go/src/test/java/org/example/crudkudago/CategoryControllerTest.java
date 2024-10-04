@@ -1,9 +1,9 @@
 package org.example.crudkudago;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.crudkudago.controller.CategoryControllerImpl;
+import org.example.crudkudago.controller.CategoryController;
 import org.example.crudkudago.entity.Category;
-import org.example.crudkudago.service.CategoryServiceImpl;
+import org.example.crudkudago.service.CategoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,14 +23,14 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(CategoryControllerImpl.class)
+@WebMvcTest(CategoryController.class)
 class CategoryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private CategoryServiceImpl categoryService;
+    private CategoryService categoryService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -123,7 +123,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldDeleteCategory() throws Exception {
-        doNothing().when(categoryService).deleteCategory(categoryId);
+        doNothing().when(categoryService).deleteCategoryById(categoryId);
 
         var mvcResult = mockMvc.perform(delete("/api/v1/places/categories/{id}", categoryId)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -133,7 +133,7 @@ class CategoryControllerTest {
         var jsonResponse = mvcResult.getResponse().getContentAsString();
         assertThat(jsonResponse).isEmpty();
 
-        verify(categoryService, times(1)).deleteCategory(categoryId);
+        verify(categoryService, times(1)).deleteCategoryById(categoryId);
     }
 }
 

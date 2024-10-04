@@ -1,18 +1,44 @@
 package org.example.crudkudago.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.crudkudago.entity.Location;
+import org.example.crudkudago.exception.ErrorType;
+import org.example.crudkudago.exception.ServiceException;
+import org.example.crudkudago.repository.LocationRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface LocationService {
-    List<Location> getAllLocations();
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class LocationService {
 
-    Location getLocationById(UUID id);
+    private static final String MSG_LOCATION_NOT_FOUND = "Category with id '%s' not found";
+    private final LocationRepository locationRepository;
 
-    void createLocation(Location location);
+    public List<Location> getAllLocations() {
+        return locationRepository.findAll();
+    }
 
-    void updateLocation(UUID id, Location location);
+    public Location getLocationById(UUID id) {
+        return locationRepository.findById(id).orElseThrow(() -> new ServiceException(ErrorType.NOT_FOUND, MSG_LOCATION_NOT_FOUND, id));
+    }
 
-    void deleteLocation(UUID id);
+    public void createLocation(Location location) {
+        locationRepository.save(location);
+    }
+
+    public void updateLocation(UUID id, Location location) {
+        locationRepository.findById(id).orElseThrow(() -> new ServiceException(ErrorType.NOT_FOUND, MSG_LOCATION_NOT_FOUND, id));
+        locationRepository.save(location);
+
+    }
+
+    public void deleteLocationById(UUID id) {
+        locationRepository.findById(id).orElseThrow(() -> new ServiceException(ErrorType.NOT_FOUND, MSG_LOCATION_NOT_FOUND, id));
+        locationRepository.deleteById(id);
+    }
 }

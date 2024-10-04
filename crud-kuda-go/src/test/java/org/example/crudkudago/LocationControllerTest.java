@@ -1,9 +1,9 @@
 package org.example.crudkudago;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.crudkudago.controller.LocationControllerImpl;
+import org.example.crudkudago.controller.LocationController;
 import org.example.crudkudago.entity.Location;
-import org.example.crudkudago.service.LocationServiceImpl;
+import org.example.crudkudago.service.LocationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +21,14 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(LocationControllerImpl.class)
+@WebMvcTest(LocationController.class)
 class LocationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private LocationServiceImpl locationService;
+    private LocationService locationService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -121,7 +121,7 @@ class LocationControllerTest {
 
     @Test
     void shouldDeleteLocation() throws Exception {
-        doNothing().when(locationService).deleteLocation(locationId);
+        doNothing().when(locationService).deleteLocationById(locationId);
 
         var mvcResult = mockMvc.perform(delete("/api/v1/locations/{id}", locationId)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -131,6 +131,6 @@ class LocationControllerTest {
         var jsonResponse = mvcResult.getResponse().getContentAsString();
         assertThat(jsonResponse).isEmpty();
 
-        verify(locationService, times(1)).deleteLocation(locationId);
+        verify(locationService, times(1)).deleteLocationById(locationId);
     }
 }

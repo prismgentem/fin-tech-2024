@@ -1,22 +1,18 @@
 package org.example.crudkudago.exception;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
-
-@Getter
-@Setter
+@Data
+@Builder
+@Accessors(chain = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class ErrorResponse {
+    private Integer status;
+    private String code;
     private String message;
-    private int status;
-    private LocalDateTime timestamp;
-    private String details;
-
-    public ErrorResponse(String message, int status, String details) {
-        this.message = message;
-        this.status = status;
-        this.timestamp = LocalDateTime.now();
-        this.details = details;
-    }
 }

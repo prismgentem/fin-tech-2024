@@ -1,24 +1,51 @@
 package org.example.crudkudago.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.example.crudkudago.entity.Category;
-import org.springframework.web.bind.annotation.*;
+
+import org.example.crudkudago.service.CategoryService;
+import org.example.logexecutionstarter.annotation.LogExecutionTime;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 import java.util.List;
 import java.util.UUID;
 
-public interface CategoryController {
+@LogExecutionTime
+@RestController
+@RequestMapping("/api/v1/places/categories")
+@RequiredArgsConstructor
+public class CategoryController {
+    private final CategoryService categoryService;
     @GetMapping
-    List<Category> getAllCategories();
+    public List<Category> getAllCategories() {
+        return categoryService.getAllCategories();
+    }
 
     @GetMapping("/{id}")
-    Category getCategoryById(@PathVariable UUID id);
+    public Category getCategoryById(@PathVariable UUID id) {
+        return categoryService.getCategoryById(id);
+    }
 
     @PostMapping
-    void createCategory(@RequestBody Category category);
+    public void createCategory(@RequestBody Category category) {
+        categoryService.createCategory(category);
+    }
 
     @PutMapping("/{id}")
-    void updateCategory(@PathVariable UUID id, @RequestBody Category category);
+    public void updateCategory(@PathVariable UUID id, @RequestBody Category category) {
+        categoryService.updateCategory(id, category);
+    }
 
     @DeleteMapping("/{id}")
-    void deleteCategory(@PathVariable UUID id);
+    public void deleteCategory(@PathVariable UUID id) {
+        categoryService.deleteCategoryById(id);
+    }
 }

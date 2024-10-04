@@ -1,4 +1,4 @@
-package org.example.crudkudago.aspect;
+package org.example.logexecutionstarter.aspect;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class LogAspect {
     @SneakyThrows
-    @Around("@annotation(org.example.crudkudago.annotation.LogExecutionTime) || @within(org.example.crudkudago.annotation.LogExecutionTime)")
-    public Object logExecutionTime(ProceedingJoinPoint joinPoint){
-        long start = System.currentTimeMillis();
+    @Around("@annotation(org.example.logexecutionstarter.annotation.LogExecutionTime) || @within(org.example.logexecutionstarter.annotation.LogExecutionTime)")
+    public Object logExecutionTime(ProceedingJoinPoint joinPoint) {
+        long start = System.nanoTime();
         Object proceed;
         try {
             proceed = joinPoint.proceed();
@@ -26,12 +26,12 @@ public class LogAspect {
             throw throwable;
         }
 
-        long executionTime = System.currentTimeMillis() - start;
+        long executionTime = System.nanoTime() - start;
 
         log.info("Executed method: {}.{} in {}ms",
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName(),
-                executionTime);
+                executionTime / 1_000_000);
 
         return proceed;
     }
