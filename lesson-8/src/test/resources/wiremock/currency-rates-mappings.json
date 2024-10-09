@@ -1,0 +1,17 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/scripts/XML_daily.asp"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/xml"
+        },
+        "body": "<?xml version=\"1.0\" encoding=\"windows-1251\"?><ValCurs Date=\"10.10.2024\" name=\"Foreign Currency Market\"><Valute ID=\"R01235\"><CharCode>USD</CharCode><Nominal>1</Nominal><Value>96,9483</Value></Valute><Valute ID=\"R01239\"><CharCode>RUB</CharCode><Nominal>1</Nominal><Value>1,0000</Value></Valute></ValCurs>"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: lesson-8
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=1h
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      cbrService:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 1m
+        sliding-window-size: 10
+
+cbr:
+  url: http://www.cbr.ru/scripts/XML_daily.asp
