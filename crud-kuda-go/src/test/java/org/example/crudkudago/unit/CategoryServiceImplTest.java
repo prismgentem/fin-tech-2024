@@ -36,16 +36,15 @@ class CategoryServiceImplTest {
     @InjectMocks
     private CategoryServiceImpl categoryService;
 
-    private Category category;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
     }
 
     @Test
     void getAllCategoriesSuccess() {
+        var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
+
         Map<UUID, Category> categoryMap = new HashMap<>();
         categoryMap.put(category.getId(), category);
 
@@ -60,6 +59,8 @@ class CategoryServiceImplTest {
 
     @Test
     void getCategoryByIdSuccess() {
+        var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(categoryRepository.findById(category.getId())).thenReturn(category);
 
         Category foundCategory = categoryService.getCategoryById(category.getId());
@@ -81,6 +82,8 @@ class CategoryServiceImplTest {
 
     @Test
     void createCategorySuccess() {
+        var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
+
         doNothing().when(categoryRepository).save(any(UUID.class), any(Category.class));
 
         assertDoesNotThrow(() -> categoryService.createCategory(category));
@@ -89,6 +92,8 @@ class CategoryServiceImplTest {
 
     @Test
     void createCategoryException() {
+        var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
+
         doThrow(new RuntimeException("Mock exception")).when(categoryRepository).save(any(UUID.class), any(Category.class));
 
         assertThrows(CategoryOperationException.class, () -> {
@@ -98,6 +103,8 @@ class CategoryServiceImplTest {
 
     @Test
     void updateCategorySuccess() {
+        var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(categoryRepository.findById(category.getId())).thenReturn(category);
         doNothing().when(categoryRepository).update(category.getId(), category);
 
@@ -107,6 +114,8 @@ class CategoryServiceImplTest {
 
     @Test
     void updateCategoryNotFound() {
+        var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
+
         UUID invalidId = UUID.randomUUID();
 
         when(categoryRepository.findById(invalidId)).thenReturn(null);
@@ -118,6 +127,8 @@ class CategoryServiceImplTest {
 
     @Test
     void updateCategoryException() {
+        var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(categoryRepository.findById(category.getId())).thenReturn(category);
         doThrow(new RuntimeException("Mock exception")).when(categoryRepository).update(category.getId(), category);
 
@@ -128,6 +139,8 @@ class CategoryServiceImplTest {
 
     @Test
     void deleteCategorySuccess() {
+        var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(categoryRepository.findById(category.getId())).thenReturn(category);
         doNothing().when(categoryRepository).delete(category.getId());
 
@@ -148,6 +161,8 @@ class CategoryServiceImplTest {
 
     @Test
     void deleteCategoryException() {
+        var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(categoryRepository.findById(category.getId())).thenReturn(category);
         doThrow(new RuntimeException("Mock exception")).when(categoryRepository).delete(category.getId());
 

@@ -36,16 +36,15 @@ class LocationServiceImplTest {
     @InjectMocks
     private LocationServiceImpl locationService;
 
-    private Location location;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
     }
 
     @Test
     void getAllLocationsSuccess() {
+        var location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
+
         Map<UUID, Location> locationMap = new HashMap<>();
         locationMap.put(location.getId(), location);
 
@@ -60,6 +59,8 @@ class LocationServiceImplTest {
 
     @Test
     void getLocationByIdSuccess() {
+        var location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(locationRepository.findById(location.getId())).thenReturn(location);
 
         Location foundLocation = locationService.getLocationById(location.getId());
@@ -81,6 +82,8 @@ class LocationServiceImplTest {
 
     @Test
     void createLocationSuccess() {
+        var location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
+
         doNothing().when(locationRepository).save(any(UUID.class), any(Location.class));
 
         assertDoesNotThrow(() -> locationService.createLocation(location));
@@ -89,6 +92,8 @@ class LocationServiceImplTest {
 
     @Test
     void createLocationException() {
+        var location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
+
         doThrow(new RuntimeException("Mock exception")).when(locationRepository).save(any(UUID.class), any(Location.class));
 
         assertThrows(LocationOperationException.class, () -> {
@@ -98,6 +103,8 @@ class LocationServiceImplTest {
 
     @Test
     void updateLocationSuccess() {
+        var location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(locationRepository.findById(location.getId())).thenReturn(location);
         doNothing().when(locationRepository).update(location.getId(), location);
 
@@ -107,6 +114,7 @@ class LocationServiceImplTest {
 
     @Test
     void updateLocationNotFound() {
+        var location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
         UUID invalidId = UUID.randomUUID();
 
         when(locationRepository.findById(invalidId)).thenReturn(null);
@@ -118,6 +126,8 @@ class LocationServiceImplTest {
 
     @Test
     void updateLocationException() {
+        var location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(locationRepository.findById(location.getId())).thenReturn(location);
         doThrow(new RuntimeException("Mock exception")).when(locationRepository).update(location.getId(), location);
 
@@ -128,6 +138,8 @@ class LocationServiceImplTest {
 
     @Test
     void deleteLocationSuccess() {
+        var location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(locationRepository.findById(location.getId())).thenReturn(location);
         doNothing().when(locationRepository).delete(location.getId());
 
@@ -148,6 +160,8 @@ class LocationServiceImplTest {
 
     @Test
     void deleteLocationException() {
+        var location = new Location(UUID.randomUUID(), "slug-test", "Test Category");
+
         when(locationRepository.findById(location.getId())).thenReturn(location);
         doThrow(new RuntimeException("Mock exception")).when(locationRepository).delete(location.getId());
 

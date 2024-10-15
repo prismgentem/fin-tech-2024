@@ -58,6 +58,16 @@ jacocoTestReport {
         html.required = true
         csv.required = false
     }
+
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: [
+                        'org/example/crudkudago/model/**',
+                        'org/example/crudkudago/mapper/**',
+                        'org/example/crudkudago/entity/**'
+                ])
+            })
+    )
 }
 
 jacocoTestCoverageVerification {

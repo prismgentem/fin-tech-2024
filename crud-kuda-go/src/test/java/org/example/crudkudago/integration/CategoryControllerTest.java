@@ -43,8 +43,7 @@ class CategoryControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Category category;
-    private UUID categoryId;
+    private final static UUID CATEGORY_ID = UUID.fromString("f95c61f8-1faa-4d51-a59e-13975f15e9ca");
 
     @Container
     private static final WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
@@ -58,16 +57,12 @@ class CategoryControllerTest {
         registry.add("kudago.category-url", () -> wireMockUrl + "/public-api/v1.4/place-categories");
     }
 
-    @BeforeEach
-    void setUp() {
-        categoryId = UUID.randomUUID();
-        category = new Category();
-        category.setId(categoryId);
-        category.setName("Test Category");
-    }
-
     @Test
     void shouldReturnAllCategories() throws Exception {
+        var category = new Category();
+        category.setName("Test Category");
+        category.setId(CATEGORY_ID);
+
         when(categoryService.getAllCategories()).thenReturn(Collections.singletonList(category));
         MvcResult mvcResult = mockMvc.perform(get("/api/v1/places/categories")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -85,9 +80,13 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnCategoryById() throws Exception {
-        when(categoryService.getCategoryById(categoryId)).thenReturn(category);
+        var category = new Category();
+        category.setName("Test Category");
+        category.setId(CATEGORY_ID);
 
-        MvcResult mvcResult = mockMvc.perform(get("/api/v1/places/categories/{id}", categoryId)
+        when(categoryService.getCategoryById(CATEGORY_ID)).thenReturn(category);
+
+        MvcResult mvcResult = mockMvc.perform(get("/api/v1/places/categories/{id}", CATEGORY_ID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -95,9 +94,9 @@ class CategoryControllerTest {
         String jsonResponse = mvcResult.getResponse().getContentAsString();
         Category responseCategory = objectMapper.readValue(jsonResponse, Category.class);
         assertThat(responseCategory.getName()).isEqualTo("Test Category");
-        assertThat(responseCategory.getId()).isEqualTo(categoryId);
+        assertThat(responseCategory.getId()).isEqualTo(CATEGORY_ID);
 
-        verify(categoryService, times(1)).getCategoryById(categoryId);
+        verify(categoryService, times(1)).getCategoryById(CATEGORY_ID);
     }
 
     @Test
@@ -129,7 +128,7 @@ class CategoryControllerTest {
 
         doNothing().when(categoryService).updateCategory(any(UUID.class), any(Category.class));
 
-        MvcResult mvcResult = mockMvc.perform(put("/api/v1/places/categories/{id}", categoryId)
+        MvcResult mvcResult = mockMvc.perform(put("/api/v1/places/categories/{id}", CATEGORY_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(categoryJson))
                 .andExpect(status().isOk())
@@ -143,9 +142,9 @@ class CategoryControllerTest {
 
     @Test
     void shouldDeleteCategory() throws Exception {
-        doNothing().when(categoryService).deleteCategory(categoryId);
+        doNothing().when(categoryService).deleteCategory(CATEGORY_ID);
 
-        MvcResult mvcResult = mockMvc.perform(delete("/api/v1/places/categories/{id}", categoryId)
+        MvcResult mvcResult = mockMvc.perform(delete("/api/v1/places/categories/{id}", CATEGORY_ID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -153,7 +152,7 @@ class CategoryControllerTest {
         String jsonResponse = mvcResult.getResponse().getContentAsString();
         assertThat(jsonResponse).isEmpty();
 
-        verify(categoryService, times(1)).deleteCategory(categoryId);
+        verify(categoryService, times(1)).deleteCategory(CATEGORY_ID);
     }
 }
 
