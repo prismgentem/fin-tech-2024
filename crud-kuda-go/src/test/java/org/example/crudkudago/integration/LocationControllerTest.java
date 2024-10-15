@@ -39,9 +39,7 @@ class LocationControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private Location location;
-    private UUID locationId;
+    private final static UUID LOCATION_ID = UUID.fromString("f95c61f8-1faa-4d51-a59e-13975f15e9ca");
 
     @Container
     private static final WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
@@ -55,16 +53,12 @@ class LocationControllerTest {
         registry.add("kudago.location-url", () -> wireMockUrl + "/public-api/v1.4/locations");
     }
 
-    @BeforeEach
-    void setUp() {
-        locationId = UUID.randomUUID();
-        location = new Location();
-        location.setId(locationId);
-        location.setName("Test Location");
-    }
-
     @Test
     void shouldReturnAllLocations() throws Exception {
+        var location = new Location();
+        location.setId(LOCATION_ID);
+        location.setName("Test Location");
+
         when(locationService.getAllLocations()).thenReturn(Collections.singletonList(location));
 
         var mvcResult = mockMvc.perform(get("/api/v1/locations")
@@ -83,9 +77,13 @@ class LocationControllerTest {
 
     @Test
     void shouldReturnLocationById() throws Exception {
-        when(locationService.getLocationById(locationId)).thenReturn(location);
+        var location = new Location();
+        location.setId(LOCATION_ID);
+        location.setName("Test Location");
 
-        var mvcResult = mockMvc.perform(get("/api/v1/locations/{id}", locationId)
+        when(locationService.getLocationById(LOCATION_ID)).thenReturn(location);
+
+        var mvcResult = mockMvc.perform(get("/api/v1/locations/{id}", LOCATION_ID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -93,15 +91,16 @@ class LocationControllerTest {
         var jsonResponse = mvcResult.getResponse().getContentAsString();
         var responseLocation = objectMapper.readValue(jsonResponse, Location.class);
         assertThat(responseLocation.getName()).isEqualTo("Test Location");
-        assertThat(responseLocation.getId()).isEqualTo(locationId);
+        assertThat(responseLocation.getId()).isEqualTo(LOCATION_ID);
 
-        verify(locationService, times(1)).getLocationById(locationId);
+        verify(locationService, times(1)).getLocationById(LOCATION_ID);
     }
 
     @Test
     void shouldCreateLocation() throws Exception {
         var newLocation = new Location();
         newLocation.setName("New Location");
+
         var locationJson = objectMapper.writeValueAsString(newLocation);
 
         doNothing().when(locationService).createLocation(any(Location.class));
@@ -122,11 +121,12 @@ class LocationControllerTest {
     void shouldUpdateLocation() throws Exception {
         var updatedLocation = new Location();
         updatedLocation.setName("Updated Location");
+
         var locationJson = objectMapper.writeValueAsString(updatedLocation);
 
         doNothing().when(locationService).updateLocation(any(UUID.class), any(Location.class));
 
-        var mvcResult = mockMvc.perform(put("/api/v1/locations/{id}", locationId)
+        var mvcResult = mockMvc.perform(put("/api/v1/locations/{id}", LOCATION_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(locationJson))
                 .andExpect(status().isOk())
@@ -140,9 +140,9 @@ class LocationControllerTest {
 
     @Test
     void shouldDeleteLocation() throws Exception {
-        doNothing().when(locationService).deleteLocation(locationId);
+        doNothing().when(locationService).deleteLocation(LOCATION_ID);
 
-        var mvcResult = mockMvc.perform(delete("/api/v1/locations/{id}", locationId)
+        var mvcResult = mockMvc.perform(delete("/api/v1/locations/{id}", LOCATION_ID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -150,6 +150,6 @@ class LocationControllerTest {
         var jsonResponse = mvcResult.getResponse().getContentAsString();
         assertThat(jsonResponse).isEmpty();
 
-        verify(locationService, times(1)).deleteLocation(locationId);
+        verify(locationService, times(1)).deleteLocation(LOCATION_ID);
     }
 }
