@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+package org.example.logexecutionstarter.config.LogExecutionAutoConfiguration

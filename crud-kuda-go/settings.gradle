@@ -1,0 +1,3 @@
+rootProject.name = 'crud-kuda-go'
+
+include 'log-execution-starter'

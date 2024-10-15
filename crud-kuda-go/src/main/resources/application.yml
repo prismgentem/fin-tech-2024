@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: crud-kuda-go
+
+external:
+  api:
+    kudago:
+      base-url: "https://kudago.com/public-api/v1.4"
+      timeout:
+        connect: 5000
+        read: 10000
