@@ -12,7 +12,7 @@ public class CbrClient {
 
     private final WebClient webClient;
 
-    @Value("${cbr.url}")
+    @Value("${external.api.cbr.base-url}")
     private String cbrUrl;
 
     public Mono<String> getCurrencyRates() {

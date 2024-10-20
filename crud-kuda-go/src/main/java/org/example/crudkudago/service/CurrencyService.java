@@ -22,7 +22,7 @@ public class CurrencyService {
     private final CbrClient cbrClient;
 
     public ConvertResponse convert(ConvertRequest request) {
-        log.info("Converting from {} to {} with amount {}", request.getFromCurrency(), request.getToCurrency(), request.getAmount());
+        log.info("Converting {} from {} to {}", request.getAmount(), request.getFromCurrency(), request.getToCurrency());
 
         validateConvertRequest(request);
 
@@ -32,12 +32,13 @@ public class CurrencyService {
                     return new ServiceException(ErrorType.SERVICE_UNAVAILABLE, "Could not retrieve data from CBR");
                 });
 
-        var fromRate = parseCurrencyRate(xml, request.getFromCurrency());
-        var toRate = parseCurrencyRate(xml, request.getToCurrency());
+        double fromRate = "RUB".equalsIgnoreCase(request.getFromCurrency().trim())
+                ? 1.0
+                : parseCurrencyRate(xml, request.getFromCurrency().trim());
 
-        double convertedAmount = calculateConvertedAmount(request.getAmount(), fromRate, toRate);
+        double convertedAmount = request.getAmount() * fromRate;
 
-        log.info("Successfully converted {} {} to {} {} with result: {}", request.getAmount(), request.getFromCurrency(), convertedAmount, request.getToCurrency(), convertedAmount);
+        log.info("Successfully converted {} {} to {} with result: {}", request.getAmount(), request.getFromCurrency(), request.getToCurrency(), convertedAmount);
 
         return ConvertResponse.builder()
                 .fromCurrency(request.getFromCurrency())
@@ -56,11 +57,6 @@ public class CurrencyService {
             log.error("Invalid conversion request: both fromCurrency and toCurrency must be provided");
             throw new ServiceException(ErrorType.BAD_REQUEST, "Both fromCurrency and toCurrency must be provided");
         }
-    }
-
-    private double calculateConvertedAmount(double amount, double fromRate, double toRate) {
-        log.debug("Calculating conversion: amount={}, fromRate={}, toRate={}", amount, fromRate, toRate);
-        return amount * toRate / fromRate;
     }
 
     private Double parseCurrencyRate(String xml, String currencyCode) {

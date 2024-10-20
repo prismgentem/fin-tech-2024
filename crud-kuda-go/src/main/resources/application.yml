@@ -10,6 +10,8 @@ app:
   scheduled:
     thread-pool:
       size: 10
+  rate-limit:
+    max-concurrent-requests: 100
 
 external:
   api:
@@ -18,3 +20,5 @@ external:
       timeout:
         connect: 5000
         read: 10000
+    cbr:
+      base-url: "http://www.cbr.ru/scripts/XML_daily.asp"
