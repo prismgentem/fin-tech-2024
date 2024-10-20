@@ -10,12 +10,17 @@ import org.example.crudkudago.model.KudagoCategoryResponse;
 import org.example.crudkudago.model.KudagoLocationResponse;
 import org.example.crudkudago.service.CategoryService;
 import org.example.crudkudago.service.LocationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -26,13 +31,34 @@ public class DataInitializer {
     private final LocationService locationService;
     private final KudagoClient kudagoClient;
     private final ConversionService conversionService;
+    private final ExecutorService fixedThreadPool;
+    private final ScheduledExecutorService scheduledThreadPool;
+
+    @Value("${app.data-init.interval}")
+    private long initInterval;
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        log.info("Starting data initialization after application ready...");
-        initCategories();
-        initLocations();
-        log.info("Completed data initialization.");
+        log.info("Scheduling data initialization after application ready...");
+        scheduledThreadPool.scheduleAtFixedRate(this::initData, 0, initInterval, TimeUnit.SECONDS);
+    }
+
+    @LogExecutionTime
+    private void initData() {
+        log.info("Starting data initialization...");
+
+        try {
+            Future<?> categoryFuture = fixedThreadPool.submit(this::initCategories);
+            Future<?> locationFuture = fixedThreadPool.submit(this::initLocations);
+
+            categoryFuture.get();
+            locationFuture.get();
+
+            log.info("Completed data initialization.");
+        } catch (Exception e) {
+            log.error("Error during data initialization", e);
+            throw new RuntimeException(e);
+        }
     }
 
     @LogExecutionTime
