@@ -1,7 +1,7 @@
 package org.example.lesson8.client;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -12,12 +12,9 @@ public class CbrClient {
 
     private final WebClient webClient;
 
-    @Value("${cbr.url}")
-    private String cbrUrl;
-
+    @CircuitBreaker(name = "cbrService")
     public Mono<String> getCurrencyRates() {
         return webClient.get()
-                .uri(cbrUrl)
                 .retrieve()
                 .bodyToMono(String.class);
     }

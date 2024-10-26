@@ -94,7 +94,7 @@ public class CurrencyService {
             return XmlCurrencyParser.getCurrencyRate(xml, currencyCode);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             log.error("Error parsing XML response for currency: {}", currencyCode, e);
-            throw new ServiceException(ErrorType.INVALID_REQUEST, "Error parsing XML response");
+            throw new ServiceException(ErrorType.INTERNAL_SERVER_ERROR, "Error parsing XML response");
         } catch (IllegalArgumentException e) {
             log.error("Currency not found: {}", currencyCode, e);
             throw new ServiceException(ErrorType.CURRENCY_NOT_FOUND, "Currency not found: %s".formatted(currencyCode));
