@@ -1,15 +1,12 @@
 package org.example.crudkudago.repository;
 
 import org.example.crudkudago.entity.Location;
+import org.example.crudkudago.model.snapshot.LocationSnapshot;
 import org.example.crudkudago.observer.Observer;
 import org.springframework.stereotype.Repository;
 
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -18,6 +15,8 @@ public class LocationRepository implements EntityRepository<UUID, Location> {
 
     private final Map<UUID, Location> locations = new ConcurrentHashMap<>();
     private final List<Observer<Location>> observers = new CopyOnWriteArrayList<>();
+    private final Map<UUID, List<LocationSnapshot>> history = new ConcurrentHashMap<>();
+
 
     @Override
     public Optional<Location> findById(UUID id) {
@@ -35,6 +34,8 @@ public class LocationRepository implements EntityRepository<UUID, Location> {
     public void save(Location entity) {
         if (Objects.isNull(entity.getId())) {
             entity.setId(UUID.randomUUID());
+        } else {
+            saveSnapshot(entity);
         }
         locations.put(entity.getId(), entity);
     }
@@ -52,6 +53,15 @@ public class LocationRepository implements EntityRepository<UUID, Location> {
     @Override
     public void removeObserver(Observer<Location> observer) {
         observers.remove(observer);
+    }
+
+    private void saveSnapshot(Location entity) {
+        List<LocationSnapshot> snapshots = history.computeIfAbsent(entity.getId(), k -> new ArrayList<>());
+        snapshots.add(new LocationSnapshot(entity.getId(), entity.getSlug(), entity.getName()));
+    }
+
+    public List<LocationSnapshot> getHistory(UUID id) {
+        return history.getOrDefault(id, Collections.emptyList());
     }
 
     private void notifyObserversOnSave(Location entity) {
