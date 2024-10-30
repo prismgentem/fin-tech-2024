@@ -6,8 +6,11 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+
 import java.util.AbstractList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.function.Consumer;
 
 @EqualsAndHashCode(callSuper = true)
 public class CustomLinkedList<T> extends AbstractList<T> {
@@ -122,4 +125,32 @@ public class CustomLinkedList<T> extends AbstractList<T> {
         return size;
     }
 
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<>() {
+            private Node<T> current = head;
+
+            @Override
+            public boolean hasNext() {
+                return current != null;
+            }
+
+            @Override
+            public T next() {
+                if (!hasNext()) {
+                    throw new java.util.NoSuchElementException();
+                }
+                T value = current.getValue();
+                current = current.getNext();
+                return value;
+            }
+
+            @Override
+            public void forEachRemaining(Consumer<? super T> action) {
+                while (hasNext()) {
+                    action.accept(next());
+                }
+            }
+        };
+    }
 }
