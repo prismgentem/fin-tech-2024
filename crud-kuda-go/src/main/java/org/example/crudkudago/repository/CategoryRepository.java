@@ -37,11 +37,15 @@ public class CategoryRepository implements EntityRepository<UUID, Category>{
             saveSnapshot(entity);
         }
         categories.put(entity.getId(), entity);
+        notifyObserversOnSave(entity);
     }
 
     @Override
     public void deleteById(UUID id) {
-        categories.remove(id);
+        var removed =categories.remove(id);
+        if (removed != null) {
+            notifyObserversOnDelete(removed);
+        }
     }
 
     @Override

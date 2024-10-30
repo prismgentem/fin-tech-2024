@@ -38,11 +38,15 @@ public class LocationRepository implements EntityRepository<UUID, Location> {
             saveSnapshot(entity);
         }
         locations.put(entity.getId(), entity);
+        notifyObserversOnSave(entity);
     }
 
     @Override
     public void deleteById(UUID id) {
-        locations.remove(id);
+        var removed = locations.remove(id);
+        if (removed != null) {
+            notifyObserversOnDelete(removed);
+        }
     }
 
     @Override
