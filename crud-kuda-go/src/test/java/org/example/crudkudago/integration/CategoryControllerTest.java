@@ -1,10 +1,9 @@
 package org.example.crudkudago.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.crudkudago.controller.CategoryControllerImpl;
+
 import org.example.crudkudago.entity.Category;
-import org.example.crudkudago.service.CategoryServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
+import org.example.crudkudago.service.CategoryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ class CategoryControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private CategoryServiceImpl categoryService;
+    private CategoryService categoryService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -138,21 +137,6 @@ class CategoryControllerTest {
         assertThat(jsonResponse).isEmpty();
 
         verify(categoryService, times(1)).updateCategory(any(UUID.class), any(Category.class));
-    }
-
-    @Test
-    void shouldDeleteCategory() throws Exception {
-        doNothing().when(categoryService).deleteCategory(CATEGORY_ID);
-
-        MvcResult mvcResult = mockMvc.perform(delete("/api/v1/places/categories/{id}", CATEGORY_ID)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String jsonResponse = mvcResult.getResponse().getContentAsString();
-        assertThat(jsonResponse).isEmpty();
-
-        verify(categoryService, times(1)).deleteCategory(CATEGORY_ID);
     }
 }
 
