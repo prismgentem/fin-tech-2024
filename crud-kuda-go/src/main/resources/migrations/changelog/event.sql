@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset fetyukhin:event
+--changeset penkin:event
 
 CREATE TABLE event
 (

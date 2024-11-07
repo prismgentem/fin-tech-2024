@@ -15,6 +15,9 @@ spring:
       password: password
     liquibase:
       change-log: classpath:migrations/db.changelog-master.yml
+    jwt:
+      secret-key: "skfnvciNXSEXSEFLIOKJKMDDDHHHXAXAXAXAXAXAXAXAXAXAXxdxdxddxddxddxd"
+      ttl-in-min: 10
 
 external:
   api:
