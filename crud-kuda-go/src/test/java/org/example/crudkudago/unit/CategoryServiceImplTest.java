@@ -1,40 +1,29 @@
 package org.example.crudkudago.unit;
 
 import org.example.crudkudago.entity.Category;
-import org.example.crudkudago.exception.CategoryNotFoundException;
-import org.example.crudkudago.exception.CategoryOperationException;
-import org.example.crudkudago.repository.InMemoryRepository;
-import org.example.crudkudago.service.CategoryServiceImpl;
+import org.example.crudkudago.exception.ErrorType;
+import org.example.crudkudago.exception.ServiceException;
+import org.example.crudkudago.repository.CategoryRepository;
+import org.example.crudkudago.service.CategoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CategoryServiceImplTest {
 
     @Mock
-    private InMemoryRepository<Category> categoryRepository;
+    private CategoryRepository categoryRepository;
 
     @InjectMocks
-    private CategoryServiceImpl categoryService;
+    private CategoryService categoryService;
 
     @BeforeEach
     void setUp() {
@@ -48,7 +37,7 @@ class CategoryServiceImplTest {
         Map<UUID, Category> categoryMap = new HashMap<>();
         categoryMap.put(category.getId(), category);
 
-        when(categoryRepository.findAll()).thenReturn(categoryMap);
+        when(categoryRepository.findAll()).thenReturn(List.copyOf(categoryMap.values()));
 
         List<Category> categories = categoryService.getAllCategories();
 
@@ -61,7 +50,7 @@ class CategoryServiceImplTest {
     void getCategoryByIdSuccess() {
         var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
 
-        when(categoryRepository.findById(category.getId())).thenReturn(category);
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
 
         Category foundCategory = categoryService.getCategoryById(category.getId());
 
@@ -73,43 +62,47 @@ class CategoryServiceImplTest {
     void getCategoryByIdNotFound() {
         UUID invalidId = UUID.randomUUID();
 
-        when(categoryRepository.findById(invalidId)).thenReturn(null);
+        when(categoryRepository.findById(invalidId)).thenReturn(Optional.empty());
 
-        assertThrows(CategoryNotFoundException.class, () -> {
+        var ex = assertThrows(ServiceException.class, () -> {
             categoryService.getCategoryById(invalidId);
         });
+
+        assertEquals(ErrorType.NOT_FOUND.getStatus(), ex.getStatus());
     }
 
     @Test
     void createCategorySuccess() {
         var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
 
-        doNothing().when(categoryRepository).save(any(UUID.class), any(Category.class));
+        doNothing().when(categoryRepository).save(eq(category));
 
         assertDoesNotThrow(() -> categoryService.createCategory(category));
-        verify(categoryRepository, times(1)).save(any(UUID.class), eq(category));
+        verify(categoryRepository, times(1)).save(eq(category));
     }
 
     @Test
     void createCategoryException() {
         var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
 
-        doThrow(new RuntimeException("Mock exception")).when(categoryRepository).save(any(UUID.class), any(Category.class));
+        doThrow(new ServiceException(ErrorType.NOT_FOUND,String.format("Category with id '%s' not found", category.getId()))).when(categoryRepository).save(eq(category));
 
-        assertThrows(CategoryOperationException.class, () -> {
+        var ex = assertThrows(ServiceException.class, () -> {
             categoryService.createCategory(category);
         });
+
+        assertEquals(ErrorType.NOT_FOUND.getStatus(), ex.getStatus());
     }
 
     @Test
     void updateCategorySuccess() {
         var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
 
-        when(categoryRepository.findById(category.getId())).thenReturn(category);
-        doNothing().when(categoryRepository).update(category.getId(), category);
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+        doNothing().when(categoryRepository).save(eq(category));
 
         assertDoesNotThrow(() -> categoryService.updateCategory(category.getId(), category));
-        verify(categoryRepository, times(1)).update(category.getId(), category);
+        verify(categoryRepository, times(1)).save(eq(category));
     }
 
     @Test
@@ -118,56 +111,65 @@ class CategoryServiceImplTest {
 
         UUID invalidId = UUID.randomUUID();
 
-        when(categoryRepository.findById(invalidId)).thenReturn(null);
+        when(categoryRepository.findById(invalidId)).thenReturn(Optional.empty());
 
-        assertThrows(CategoryNotFoundException.class, () -> {
+        var ex = assertThrows(ServiceException.class, () -> {
             categoryService.updateCategory(invalidId, category);
         });
+
+        assertEquals(ErrorType.NOT_FOUND.getStatus(), ex.getStatus());
     }
 
     @Test
     void updateCategoryException() {
         var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
 
-        when(categoryRepository.findById(category.getId())).thenReturn(category);
-        doThrow(new RuntimeException("Mock exception")).when(categoryRepository).update(category.getId(), category);
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+        doThrow(new ServiceException(ErrorType.NOT_FOUND,String.format("Category with id '%s' not found", category.getId()))).when(categoryRepository).save(eq(category));
 
-        assertThrows(CategoryOperationException.class, () -> {
+        var ex = assertThrows(ServiceException.class, () -> {
             categoryService.updateCategory(category.getId(), category);
         });
+
+        assertEquals(ErrorType.NOT_FOUND.getStatus(), ex.getStatus());
     }
 
     @Test
     void deleteCategorySuccess() {
         var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
 
-        when(categoryRepository.findById(category.getId())).thenReturn(category);
-        doNothing().when(categoryRepository).delete(category.getId());
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+        doNothing().when(categoryRepository).deleteById(category.getId());
 
-        assertDoesNotThrow(() -> categoryService.deleteCategory(category.getId()));
-        verify(categoryRepository, times(1)).delete(category.getId());
+        assertDoesNotThrow(() -> categoryService.deleteCategoryById(category.getId()));
+        verify(categoryRepository, times(1)).deleteById(category.getId());
     }
 
     @Test
     void deleteCategoryNotFound() {
         UUID invalidId = UUID.randomUUID();
 
-        when(categoryRepository.findById(invalidId)).thenReturn(null);
+        when(categoryRepository.findById(invalidId)).thenReturn(Optional.empty());
 
-        assertThrows(CategoryNotFoundException.class, () -> {
-            categoryService.deleteCategory(invalidId);
+        var ex = assertThrows(ServiceException.class, () -> {
+            categoryService.deleteCategoryById(invalidId);
         });
+
+        assertEquals(ErrorType.NOT_FOUND.getStatus(), ex.getStatus());
     }
 
     @Test
     void deleteCategoryException() {
         var category = new Category(UUID.randomUUID(), "slug-test", "Test Category");
 
-        when(categoryRepository.findById(category.getId())).thenReturn(category);
-        doThrow(new RuntimeException("Mock exception")).when(categoryRepository).delete(category.getId());
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+        doThrow(new ServiceException(ErrorType.NOT_FOUND, String.format("Category with id '%s' not found", category.getId()))).when(categoryRepository).deleteById(category.getId());
 
-        assertThrows(CategoryOperationException.class, () -> {
-            categoryService.deleteCategory(category.getId());
+        var ex = assertThrows(ServiceException.class, () -> {
+            categoryService.deleteCategoryById(category.getId());
         });
+
+        assertEquals(ErrorType.NOT_FOUND.getStatus(), ex.getStatus());
     }
 }
+

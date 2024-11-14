@@ -2,9 +2,11 @@ package org.example.crudkudago.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.crudkudago.entity.Category;
 import org.example.crudkudago.entity.Location;
 import org.example.crudkudago.exception.ErrorType;
 import org.example.crudkudago.exception.ServiceException;
+import org.example.crudkudago.repository.InMemoryRepository;
 import org.example.crudkudago.repository.LocationRepository;
 import org.springframework.stereotype.Service;
 

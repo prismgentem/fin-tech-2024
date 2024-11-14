@@ -1,10 +1,9 @@
 package org.example.crudkudago.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.crudkudago.service.LocationService;
 import org.springframework.http.MediaType;
 import org.example.crudkudago.entity.Location;
-import org.example.crudkudago.service.LocationServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,7 +34,7 @@ class LocationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private LocationServiceImpl locationService;
+    private LocationService locationService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -140,7 +139,7 @@ class LocationControllerTest {
 
     @Test
     void shouldDeleteLocation() throws Exception {
-        doNothing().when(locationService).deleteLocation(LOCATION_ID);
+        doNothing().when(locationService).deleteLocationById(LOCATION_ID);
 
         var mvcResult = mockMvc.perform(delete("/api/v1/locations/{id}", LOCATION_ID)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -150,6 +149,6 @@ class LocationControllerTest {
         var jsonResponse = mvcResult.getResponse().getContentAsString();
         assertThat(jsonResponse).isEmpty();
 
-        verify(locationService, times(1)).deleteLocation(LOCATION_ID);
+        verify(locationService, times(1)).deleteLocationById(LOCATION_ID);
     }
 }
