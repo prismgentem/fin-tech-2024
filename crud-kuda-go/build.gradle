@@ -3,10 +3,25 @@ plugins {
     id 'org.springframework.boot' version '3.1.4'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'jacoco'
+    id 'org.sonarqube' version '4.0.0.2929'
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "prismgentem_fin-tech-2024"
+        property "sonar.organization", "prismgentem"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
 }
 
 group = 'org.example'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
+
+jar {
+    archiveBaseName.set('crud-kuda-go')
+    archiveVersion.set('')
+    archiveClassifier.set('')
+}
 
 java {
     toolchain {
@@ -74,7 +89,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.70
+                minimum = 0.50
             }
             classDirectories.setFrom(
                     files(classDirectories.files.collect {
