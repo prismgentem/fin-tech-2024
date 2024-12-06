@@ -4,7 +4,7 @@ spring:
 
 app:
   data-init:
-    interval: 60
+    interval: "PT1M"
   thread-pool:
     size: 10
   scheduled:

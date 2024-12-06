@@ -2,14 +2,12 @@ package org.example.crudkudago.init;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.logexecutionstarter.annotation.LogExecutionTime;
 import org.example.crudkudago.client.KudagoClient;
 import org.example.crudkudago.entity.Category;
 import org.example.crudkudago.entity.Location;
-import org.example.crudkudago.model.KudagoCategoryResponse;
-import org.example.crudkudago.model.KudagoLocationResponse;
 import org.example.crudkudago.service.CategoryService;
 import org.example.crudkudago.service.LocationService;
+import org.example.logexecutionstarter.annotation.LogExecutionTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -18,9 +16,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.time.Duration;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -36,16 +32,18 @@ public class DataInitializer {
     private final ScheduledExecutorService scheduledThreadPool;
 
     @Value("${app.data-init.interval}")
-    private long initInterval;
+    private Duration initInterval;
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         log.info("Scheduling data initialization after application ready...");
-        scheduledThreadPool.scheduleAtFixedRate(this::initData, 0, initInterval, TimeUnit.SECONDS);
+        long initialDelay = 0L;
+        long intervalInSeconds = initInterval.toSeconds();
+        scheduledThreadPool.scheduleAtFixedRate(this::initData, initialDelay, intervalInSeconds, TimeUnit.SECONDS);
     }
 
     @LogExecutionTime
-    private void initData() {
+    public void initData() {
         log.info("Starting data initialization...");
 
         Mono<Void> initCategoriesMono = initCategories();
@@ -58,7 +56,7 @@ public class DataInitializer {
     }
 
     @LogExecutionTime
-    private Mono<Void> initCategories() {
+    public Mono<Void> initCategories() {
         return kudagoClient.fetchCategories()
                 .flatMapMany(Flux::fromIterable)
                 .mapNotNull(categoryResponse -> conversionService.convert(categoryResponse, Category.class))
@@ -67,7 +65,7 @@ public class DataInitializer {
     }
 
     @LogExecutionTime
-    private Mono<Void> initLocations() {
+    public Mono<Void> initLocations() {
         return kudagoClient.fetchLocations()
                 .flatMapMany(Flux::fromIterable)
                 .mapNotNull(locationResponse -> conversionService.convert(locationResponse, Location.class))

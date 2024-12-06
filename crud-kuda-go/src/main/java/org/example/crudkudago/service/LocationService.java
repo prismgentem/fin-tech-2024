@@ -28,7 +28,7 @@ public class LocationService {
         return locationRepository.findById(id).orElseThrow(() -> new ServiceException(ErrorType.NOT_FOUND, MSG_LOCATION_NOT_FOUND, id));
     }
 
-    public Mono<Void> createLocation(Location location) {
+    public Mono<Location> createLocation(Location location) {
         return Mono.fromRunnable(() ->
                 locationRepository.save(location)
         );
