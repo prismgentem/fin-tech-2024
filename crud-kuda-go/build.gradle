@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.1.4'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco'
 }
 
 group = 'org.example'
@@ -38,6 +39,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.0'
+    testImplementation 'org.wiremock.integrations.testcontainers:wiremock-testcontainers-module:1.0-alpha-13'
     implementation project(':log-execution-starter')
 
     // Testcontainers dependencies
@@ -48,6 +53,53 @@ dependencies {
 }
 
 
-tasks.named('test') {
+tasks.named('test', Test) {
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
 }
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: [
+                        'org/example/crudkudago/model/**',
+                        'org/example/crudkudago/mapper/**',
+                        'org/example/crudkudago/entity/**'
+                ])
+            })
+    )
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.70
+            }
+            classDirectories.setFrom(
+                    files(classDirectories.files.collect {
+                        fileTree(dir: it, exclude: [
+                                'org/example/crudkudago/model/**',
+                                'org/example/crudkudago/mapper/**',
+                                'org/example/crudkudago/entity/**'
+                        ])
+                    })
+            )
+        }
+    }
+}
+
+// Проверка покрытия выполняется только при запуске `check`
+check.dependsOn jacocoTestReport, jacocoTestCoverageVerification
