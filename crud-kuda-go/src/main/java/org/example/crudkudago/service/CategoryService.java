@@ -7,6 +7,7 @@ import org.example.crudkudago.exception.ErrorType;
 import org.example.crudkudago.exception.ServiceException;
 import org.example.crudkudago.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,8 +28,10 @@ public class CategoryService {
         return categoryRepository.findById(id).orElseThrow(() -> new ServiceException(ErrorType.NOT_FOUND, MSG_CATEGORY_NOT_FOUND, id));
     }
 
-    public void createCategory(Category category) {
-        categoryRepository.save(category);
+    public Mono<Void> createCategory(Category category) {
+        return Mono.fromRunnable(() ->
+                categoryRepository.save(category)
+        );
     }
 
     public void updateCategory(UUID id, Category category) {

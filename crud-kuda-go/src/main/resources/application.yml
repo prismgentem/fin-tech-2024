@@ -2,6 +2,17 @@ spring:
   application:
     name: crud-kuda-go
 
+app:
+  data-init:
+    interval: "PT1M"
+  thread-pool:
+    size: 10
+  scheduled:
+    thread-pool:
+      size: 10
+  rate-limit:
+    max-concurrent-requests: 100
+
 external:
   api:
     kudago:
@@ -9,3 +20,5 @@ external:
       timeout:
         connect: 5000
         read: 10000
+    cbr:
+      base-url: "http://www.cbr.ru/scripts/XML_daily.asp"

@@ -7,6 +7,7 @@ import org.example.crudkudago.exception.ErrorType;
 import org.example.crudkudago.exception.ServiceException;
 import org.example.crudkudago.repository.LocationRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,8 +28,10 @@ public class LocationService {
         return locationRepository.findById(id).orElseThrow(() -> new ServiceException(ErrorType.NOT_FOUND, MSG_LOCATION_NOT_FOUND, id));
     }
 
-    public void createLocation(Location location) {
-        locationRepository.save(location);
+    public Mono<Location> createLocation(Location location) {
+        return Mono.fromRunnable(() ->
+                locationRepository.save(location)
+        );
     }
 
     public void updateLocation(UUID id, Location location) {
